@@ -1,4 +1,21 @@
-<main>
-  <div>Inicio de Archivos y repo</div>
+<main class="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+  <div class="text-center">
+    <h2 class="text-lg font-semibold mb-4">
+      Subir PDF y Extraer Datos
+    </h2>
+    <input
+      type="file"
+      class="mb-4 block w-full text-sm text-gray-500 "
+      accept="application/pdf"
+    />
+  </div>
+    <form class="grid grid-cols-2 gap-4">
+      <input type="text" placeholder="Número de motor" formControlName="motor" class="border p-2 rounded w-full" />
+      <input type="text" placeholder="Número de chasis" formControlName="chasis" class="border p-2 rounded w-full" />
+      <input type="text" placeholder="Marca del vehículo" formControlName="marca" class="border p-2 rounded w-full" />
+      <input type="text" placeholder="Modelo del vehículo" formControlName="modelo" class="border p-2 rounded w-full" />
+      <input type="text" placeholder="Año de fabricación" formControlName="anio" class="border p-2 rounded w-full" />
+      <input type="text" placeholder="Color" formControlName="color" class="border p-2 rounded w-full" />
+    </form>
 </main>
 <router-outlet />
