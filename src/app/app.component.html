@@ -3,13 +3,14 @@
     <h2 class="text-lg font-semibold mb-4">
       Subir PDF y Extraer Datos
     </h2>
-    <input
-      type="file"
-      class="mb-4 block w-full text-sm text-gray-500 "
-      accept="application/pdf"
-    />
   </div>
-    <form class="grid grid-cols-2 gap-4">
+  <input
+  type="file"
+  class="mb-4 block w-full text-sm text-gray-500 "
+  accept="application/pdf"
+  (change)="onFileSelected($event)"
+  />
+  <form class="grid grid-cols-2 gap-4">
       <input type="text" placeholder="Número de motor" formControlName="motor" class="border p-2 rounded w-full" />
       <input type="text" placeholder="Número de chasis" formControlName="chasis" class="border p-2 rounded w-full" />
       <input type="text" placeholder="Marca del vehículo" formControlName="marca" class="border p-2 rounded w-full" />
