@@ -1,22 +1,121 @@
-<main class="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+<main class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
   <div class="text-center">
-    <h2 class="text-lg font-semibold mb-4">
-      Subir PDF y Extraer Datos
-    </h2>
+    <h2 class="text-lg font-semibold mb-4">Subir PDF y Extraer Datos</h2>
   </div>
   <input
-  type="file"
-  class="mb-4 block w-full text-sm text-gray-500 "
-  accept="application/pdf"
-  (change)="onFileSelected($event)"
+    type="file"
+    class="mb-4 block w-full text-sm text-gray-500"
+    accept="application/pdf"
+    (change)="onFileSelected($event)"
   />
+  <div *ngIf="isLoading" class="loader">
+    <span></span>
+  </div>
   <form class="grid grid-cols-2 gap-4">
-      <input type="text" placeholder="Número de motor" formControlName="motor" class="border p-2 rounded w-full" />
-      <input type="text" placeholder="Número de chasis" formControlName="chasis" class="border p-2 rounded w-full" />
-      <input type="text" placeholder="Marca del vehículo" formControlName="marca" class="border p-2 rounded w-full" />
-      <input type="text" placeholder="Modelo del vehículo" formControlName="modelo" class="border p-2 rounded w-full" />
-      <input type="text" placeholder="Año de fabricación" formControlName="anio" class="border p-2 rounded w-full" />
-      <input type="text" placeholder="Color" formControlName="color" class="border p-2 rounded w-full" />
-    </form>
+    <input
+      id="motor"
+      type="text"
+      placeholder="Número de motor"
+      class="border p-2 rounded w-full"
+    />
+    <input
+      type="text"
+      placeholder="Número de chasis"
+      id="chasis"
+      class="border p-2 rounded w-full"
+    />
+    <input
+      id="marca"
+      type="text"
+      placeholder="Marca del vehículo"
+      class="border p-2 rounded w-full"
+    />
+    <input
+      id="modelo"
+      type="text"
+      placeholder="Modelo del vehículo"
+      class="border p-2 rounded w-full"
+    />
+    <input
+      id="anio"
+      type="text"
+      placeholder="Año de fabricación"
+      class="border p-2 rounded w-full"
+    />
+    <input
+      id="color"
+      type="text"
+      placeholder="Color"
+      class="border p-2 rounded w-full"
+    />
+    <button
+      (click)="saveData($event)"
+      class="col-span-2 bg-blue-500 text-white p-2 rounded"
+    >
+      Confirmar datos
+    </button>
+  </form>
+  <div class="p-2 text-center">
+    <p *ngIf="errorMessage" class="error-message text-red-500">
+      {{ errorMessage }}
+    </p>
+  </div>
+  <div class="text-center p-4">
+    <h1 class="p-4">Documentos</h1>
+    <table
+      *ngIf="data.length > 0"
+      class="min-w-full table-auto border-collapse"
+    >
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Motor
+          </th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Chasis
+          </th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Marca
+          </th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Modelo
+          </th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Año
+          </th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Color
+          </th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of data" class="border-b hover:bg-gray-50">
+          <td class="px-4 py-2 text-sm text-gray-700">{{ item.motor }}</td>
+          <td class="px-4 py-2 text-sm text-gray-700">{{ item.chasis }}</td>
+          <td class="px-4 py-2 text-sm text-gray-700">{{ item.marca }}</td>
+          <td class="px-4 py-2 text-sm text-gray-700">{{ item.modelo }}</td>
+          <td class="px-4 py-2 text-sm text-gray-700">{{ item.anio }}</td>
+          <td class="px-4 py-2 text-sm text-gray-700">{{ item.color }}</td>
+          <td class="flex px-4 py-2 text-sm text-gray-700">
+            <button
+              (click)="onEdit()"
+              class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700"
+            >
+              Edit
+            </button>
+            <button
+              (click)="onDelete()"
+              class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700 ml-2"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </main>
 <router-outlet />

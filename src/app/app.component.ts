@@ -1,21 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit  } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PdfService } from './services/pdf.service';
+import { FirebaseService } from './services/firebase.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatSlideToggleModule],
+  imports: [RouterOutlet, MatSlideToggleModule, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'notaria-x';
-  form: FormGroup;
+  myForm: FormGroup;
+  isLoading: boolean = false;
+  errorMessage: string = '';
+  data: any[] = [];
+  updatedDocument = { motor: 'New Motor', chasis: 'New Chasis', marca: 'New Marca' };
+  docId = 'someDocId';
 
-  constructor(private fb: FormBuilder, private pdfService: PdfService) {
-    this.form = this.fb.group({
+  constructor(
+    private fb: FormBuilder,
+    private pdfService: PdfService,
+    private firebaseService: FirebaseService
+  ) {
+    this.myForm = this.fb.group({
       motor: [''],
       chasis: [''],
       marca: [''],
@@ -23,33 +34,89 @@ export class AppComponent {
       anio: [''],
       color: [''],
     });
-
   }
+
+  ngOnInit() {
+    this.onGetAll();
+  }
+
   async onFileSelected(event: any) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (file) {
+      this.isLoading = true;
+      this.pdfService.uploadPdf(file).subscribe((response: any) => {
+        setTimeout(() => {
+          (document.getElementById('motor') as HTMLInputElement).value =
+            response.text.motor || '';
+          (document.getElementById('chasis') as HTMLInputElement).value =
+            response.text.chasis || '';
+          (document.getElementById('marca') as HTMLInputElement).value =
+            response.text.marca || '';
+          (document.getElementById('modelo') as HTMLInputElement).value =
+            response.text.modelo || '';
+          (document.getElementById('anio') as HTMLInputElement).value =
+            response.text.anio || '';
+          (document.getElementById('color') as HTMLInputElement).value =
+            response.text.color || '';
+          this.isLoading = false;
+        }, 1000);
+      });
+    } else {
+      this.isLoading = false;
+      alert('No hay archivo seleccionado');
+    }
+  }
+  async saveData(event: any) {
+    event.preventDefault();
+    const formData = {
+      motor: (document.getElementById('motor') as HTMLInputElement).value,
+      chasis: (document.getElementById('chasis') as HTMLInputElement).value,
+      marca: (document.getElementById('marca') as HTMLInputElement).value,
+      modelo: (document.getElementById('modelo') as HTMLInputElement).value,
+      año: (document.getElementById('anio') as HTMLInputElement).value,
+      color: (document.getElementById('color') as HTMLInputElement).value,
+    };
 
-    this.pdfService.uploadPdf(file).subscribe(response => {
-      const extractedText = response.text;
-      this.fillForm(extractedText);
+    if (
+      !formData.motor ||
+      !formData.chasis ||
+      !formData.marca ||
+      !formData.modelo ||
+      !formData.año ||
+      !formData.color
+    ) {
+      this.errorMessage = 'Todos los campos son requeridos';
+      return;
+    }
+
+    this.isLoading = true;
+    this.pdfService.saveData(formData, event).subscribe((response) => {
+      setTimeout(() => {
+        this.isLoading = false;
+        console.log('Datos guardados', response);
+      }, 1000);
+      alert('Datos guardados correctamente');
     });
   }
 
-  fillForm(text: string) {
-    console.log('Extracted Text:', text);
-
-    this.form.patchValue({
-      motor: this.extractValue(text, /Número de motor:\s*([\w\d-]+)/i),
-      chasis: this.extractValue(text, /Número de chasis:\s*([\w\d-]+)/i),
-      marca: this.extractValue(text, /Marca del vehículo:\s*(\w+)/i),
-      modelo: this.extractValue(text, /Modelo del vehículo:\s*(\w+)/i),
-      anio: this.extractValue(text, /Año de fabricación:\s*(\d{4})/i),
-      color: this.extractValue(text, /Color:\s*(\w+)/i),
+  onGetAll() {
+    this.firebaseService.getAllData().subscribe((response) => {
+      console.log('All Data:', response);
+      this.data = response.data;
     });
   }
 
-  extractValue(text: string, regex: RegExp): string {
-    const match = text.match(regex);
-    return match ? match[1] : '';
+  onEdit() {
+    this.firebaseService
+      .updateData(this.docId, this.updatedDocument)
+      .subscribe((response) => {
+        console.log('Data updated:', response);
+      });
+  }
+
+  onDelete() {
+    this.firebaseService.deleteData(this.docId).subscribe((response) => {
+      console.log('Data deleted:', response);
+    });
   }
 }
